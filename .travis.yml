@@ -30,5 +30,4 @@ script:
     - echo Build MagicCube
     - mkdir build && cd build
     - cmake .. && make
-    - make test
     - ./bin/MagicCube_client_test
