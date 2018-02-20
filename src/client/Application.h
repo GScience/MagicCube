@@ -19,8 +19,14 @@ public:
 	explicit Application(const std::vector<std::string>& args);
 
 	//!start the program
-	int run() const;
+	int run();
 
 	//!switch scene
-	void switchSceneTo(const IScenePtr& scene);
+	template<class scene, 
+		class = typename std::enable_if<std::is_convertible<scene*, IScene*>::value, scene>::type, 
+		class... argsType> 
+	void switchSceneTo(argsType&& ...args)
+	{
+		mNextScene = std::make_shared<scene>(args...);
+	}
 };

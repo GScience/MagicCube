@@ -1,0 +1,2 @@
+res/shader/Simple2DTexture.v GL_VERTEX_SHADER
+res/shader/Simple2DTexture.f GL_FRAGMENT_SHADER

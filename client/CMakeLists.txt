@@ -31,6 +31,7 @@ if (NOT MSVC)
 	target_link_libraries("MagicCube_client" PRIVATE ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARY})
 else()
 	find_library(SDL2_IMAGE_LIBRARY SDL2_image)
+	find_library(dirent REQUIRED)
 	target_link_libraries("MagicCube_client" PRIVATE GLEW::GLEW SDL2::SDL2 SDL2::SDL2main ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 endif()
 
