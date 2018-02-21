@@ -1,6 +1,7 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "SceneGame.h"
+#include "GameClient.h"
 
 void SceneGame::draw()
 {
@@ -21,6 +22,9 @@ void SceneGame::refresh(double timePassed)
 
 SceneGame::SceneGame() :mPerspectiveMat(glm::perspective(glm::radians(60.0f), 1.0f, 0.3f, 1000.0f))
 {
+	//start client
+	GameClient::getInstance().start();
+
 	mTextureShader = Shader::loadShader("res/shader/Simple3DTexture.shader");
 	mBackgroundTexture = Texture::loadTexture("res/images/InitSceneBackground.png");
 

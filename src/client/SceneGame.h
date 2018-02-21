@@ -5,6 +5,13 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
+//!chunk used to render
+class ChunkRenderer
+{
+public:
+
+};
+
 class SceneGame : public IScene
 {
 	//!perspective matrix
