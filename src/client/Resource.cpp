@@ -26,15 +26,19 @@ void enumFile(std::vector<std::string>& files, const std::string& basePath = "."
 		if (strcmp(direntPtr->d_name, ".") == 0 || strcmp(direntPtr->d_name, "..") == 0)
 			continue;
 		if (direntPtr->d_type == DT_REG)
+		{
 			if (basePath == ".")
 				files.emplace_back(direntPtr->d_name);
 			else
 				files.emplace_back(basePath + "/" + direntPtr->d_name);
+		}
 		else if (direntPtr->d_type == DT_DIR)
+		{
 			if (basePath == ".")
 				enumFile(files, direntPtr->d_name);
 			else
 				enumFile(files, basePath + "/" + direntPtr->d_name);
+		}
 	}
 }
 

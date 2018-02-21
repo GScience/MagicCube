@@ -41,7 +41,7 @@ SceneGame::SceneGame() :mPerspectiveMat(glm::perspective(glm::radians(60.0f), 1.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferData), bufferData, GL_STATIC_DRAW);
 
 	//set perspective martix
-	glUniformMatrix4fv(mTextureShader->getUniformLocation("perspective"), 1, GL_FALSE, value_ptr(mPerspectiveMat));
+	glUniformMatrix4fv(mTextureShader->getUniformLocation("perspective"), 1, GL_FALSE, glm::value_ptr(mPerspectiveMat));
 
 	//set data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, nullptr);
