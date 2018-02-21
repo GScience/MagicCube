@@ -6,6 +6,7 @@
 #include "Application.h"
 #include "Resource.h"
 #include "SceneMainMenu.h"
+#include "SceneGame.h"
 
 Application::Application(const std::vector<std::string>& args)
 {
@@ -56,7 +57,7 @@ int Application::run()
 	});
 
 	//switch to main scene
-	switchSceneTo<SceneMainMenu>();
+	switchSceneTo<SceneGame>();
 
 	//should close
 	auto shouldProgramClose = false;

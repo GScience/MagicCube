@@ -22,17 +22,30 @@ endif()
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLM REQUIRED)
 
 if (NOT MSVC)
 	find_package(SDL2_image REQUIRED)
-	include_directories(${SDL2_INCLUDE_DIRS})
-	include_directories(${SDL2IMAGE_INCLUDE_DIR})
-	include_directories(${GLEW_INCLUDE_DIRS})
-	target_link_libraries("MagicCube_client" PRIVATE ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARY})
+	include_directories(${SDL2_INCLUDE_DIRS}
+						${SDL2IMAGE_INCLUDE_DIR}
+						${GLEW_INCLUDE_DIRS}
+						${GLM_INCLUDE_DIR}
+						)
+	target_link_libraries("MagicCube_client" PRIVATE 
+						${GLEW_LIBRARIES}
+						${OPENGL_gl_LIBRARY}
+						${SDL2_LIBRARIES}
+						${SDL2IMAGE_LIBRARY})
 else()
 	find_library(SDL2_IMAGE_LIBRARY SDL2_image)
 	find_library(dirent REQUIRED)
-	target_link_libraries("MagicCube_client" PRIVATE GLEW::GLEW SDL2::SDL2 SDL2::SDL2main ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
+	target_link_libraries("MagicCube_client" PRIVATE 
+						GLEW::GLEW 
+						SDL2::SDL2
+						SDL2::SDL2main
+						glm
+						${OPENGL_gl_LIBRARY}
+						${SDL2_IMAGE_LIBRARY})
 endif()
 
 # copy resources
