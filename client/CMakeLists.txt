@@ -10,9 +10,7 @@ set (CMAKE_CXX_STANDARD 11)
 # create executable
 aux_source_directory("src/client" CLIENT_DIR_SRCS)
 add_executable("MagicCube_client" ${CLIENT_DIR_SRCS})
-
-# for test
-set_target_properties("MagicCube_client" PROPERTIES ENABLE_EXPORTS ON)
+add_library("MagicCube_client_lib" ${CLIENT_DIR_SRCS})
 
 # add lib
 if (NOT MSVC)
@@ -24,6 +22,9 @@ find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLM REQUIRED)
 
+#add include
+include_directories("src/block")
+
 if (NOT MSVC)
 	find_package(SDL2_image REQUIRED)
 	include_directories(${SDL2_INCLUDE_DIRS}
@@ -32,6 +33,13 @@ if (NOT MSVC)
 						${GLM_INCLUDE_DIR}
 						)
 	target_link_libraries("MagicCube_client" PRIVATE 
+						MagicCube_block
+						${GLEW_LIBRARIES}
+						${OPENGL_gl_LIBRARY}
+						${SDL2_LIBRARIES}
+						${SDL2IMAGE_LIBRARY})
+	target_link_libraries("MagicCube_client_lib" PRIVATE 
+						MagicCube_block
 						${GLEW_LIBRARIES}
 						${OPENGL_gl_LIBRARY}
 						${SDL2_LIBRARIES}
@@ -40,6 +48,15 @@ else()
 	find_library(SDL2_IMAGE_LIBRARY SDL2_image)
 	find_library(dirent REQUIRED)
 	target_link_libraries("MagicCube_client" PRIVATE 
+						MagicCube_block
+						GLEW::GLEW 
+						SDL2::SDL2
+						SDL2::SDL2main
+						glm
+						${OPENGL_gl_LIBRARY}
+						${SDL2_IMAGE_LIBRARY})
+	target_link_libraries("MagicCube_client_lib" PRIVATE 
+						MagicCube_block
 						GLEW::GLEW 
 						SDL2::SDL2
 						SDL2::SDL2main

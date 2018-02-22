@@ -7,6 +7,7 @@
 #include "Resource.h"
 #include "SceneMainMenu.h"
 #include "SceneGame.h"
+#include "BlockList.h"
 
 Application::Application(const std::vector<std::string>& args)
 {
@@ -52,8 +53,11 @@ int Application::run()
 		//refresh
 		SDL_GL_SwapWindow(window);
 
-		//init
+		//init resource
 		Resource::init();
+
+		//init block
+		BlockList.init();
 	});
 
 	//switch to main scene

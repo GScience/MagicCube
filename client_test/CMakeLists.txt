@@ -29,10 +29,10 @@ endif()
 # link
 if (NOT MSVC)
 	include_directories(${GTEST_INCLUDE_DIRS})
-	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 else()
-	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client GTest::GTest GTest::Main ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block GTest::GTest GTest::Main ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # setup test
-add_test(Test1 bin/MagicCube_client_test)
+add_test(ClientTest bin/MagicCube_client_test)
