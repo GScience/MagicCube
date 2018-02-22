@@ -5,4 +5,3 @@ project(MagicCube)
 
 include("block/CMakeLists.txt")
 include("client/CMakeLists.txt")
-include("client_test/CMakeLists.txt")

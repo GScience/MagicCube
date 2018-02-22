@@ -7,7 +7,7 @@ set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 # set cxx version
 set (CMAKE_CXX_STANDARD 11)
 
-##########client_lib##########
+##########client_lib start##########
 
 # create client lib
 aux_source_directory("src/client" CLIENT_DIR_SRCS)
@@ -34,7 +34,7 @@ endif()
 set(CLIENT_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIR})
 
 if (MSVC)
-	set(CLIENT_INCLUDE_LIBS MagicCube_block GLEW::GLEW SDL2::SDL2 glm)
+	set(CLIENT_INCLUDE_LIBS MagicCube_block GLEW::GLEW SDL2::SDL2 glm ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 else()
 	set(CLIENT_INCLUDE_LIBS ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_BUILDING_LIBRARY} ${SDL2IMAGE_LIBRARY})
 endif()
@@ -60,9 +60,46 @@ endif()
 
 ##########client_lib end##########
 
+##########client start##########
+
 # create runable client
 if (MSVC)
-	add_executable("MagicCube_client" IMPORTED SDL2::SDL2main MagicCube_client_lib)
+	add_executable("MagicCube_client" "src/ClientMain.cpp")
+	target_link_libraries("MagicCube_client" MagicCube_client_lib SDL2::SDL2main)
 else()
-	add_executable("MagicCube_client" IMPORTED ${SDL2MAIN_LIBRARY} MagicCube_client_lib)
+	add_executable("MagicCube_client" "src/ClientMain.cpp" ${SDL2MAIN_LIBRARY})
 endif()
+
+##########client end##########
+
+##########client_test start##########
+
+# add lib
+find_package(GTest REQUIRED)
+
+# add include dir
+include_directories("src/client")
+
+# create executable
+aux_source_directory("src/client_test" CLIENT_TEST_DIR_SRCS)
+add_executable(MagicCube_client_test ${CLIENT_TEST_DIR_SRCS})
+
+# pthread
+find_package(Threads REQUIRED)
+if(THREADS_HAVE_PTHREAD_ARG)
+	set_property(TARGET MagicCube_client_test PROPERTY COMPILE_OPTIONS "-pthread")
+	set_property(TARGET MagicCube_client_test PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+endif()
+
+# link
+if (NOT MSVC)
+	include_directories(${GTEST_INCLUDE_DIRS})
+	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+else()
+	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block GTest::GTest GTest::Main ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
+# setup test
+add_test(ClientTest bin/MagicCube_client_test)
+
+##########client_test end##########
