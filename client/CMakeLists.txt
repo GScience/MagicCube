@@ -36,7 +36,7 @@ set(CLIENT_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${GLEW_INC
 if (MSVC)
 	set(CLIENT_INCLUDE_LIBS MagicCube_block GLEW::GLEW SDL2::SDL2 glm ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 else()
-	set(CLIENT_INCLUDE_LIBS ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_BUILDING_LIBRARY} ${SDL2IMAGE_LIBRARY})
+	set(CLIENT_INCLUDE_LIBS ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY})
 endif()
 
 include_directories(CLIENT_INCLUDE_DIRS)
@@ -67,7 +67,7 @@ if (MSVC)
 	add_executable("MagicCube_client" "src/ClientMain.cpp")
 	target_link_libraries("MagicCube_client" MagicCube_client_lib SDL2::SDL2main)
 else()
-	add_executable("MagicCube_client" "src/ClientMain.cpp" ${SDL2MAIN_LIBRARY})
+	add_executable("MagicCube_client" "src/ClientMain.cpp")
 endif()
 
 ##########client end##########
