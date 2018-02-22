@@ -17,8 +17,8 @@ public:
 	//!register a new block
 	template<class t> void registerBlock()
 	{
-		auto blockPtr = std::make_unique<t>();
-		auto blockId = blockPtr->getId();
+		std::unique_ptr<IBlock> blockPtr(new t());
+		const auto blockId = blockPtr->getId();
 
 		if (blockPtr->getId() >= mBlockList.size())
 			mBlockList.resize(blockPtr->getId() + 1);
