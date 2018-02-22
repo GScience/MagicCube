@@ -69,6 +69,7 @@ if (MSVC)
 	target_link_libraries("MagicCube_client" MagicCube_client_lib SDL2::SDL2main)
 else()
 	add_executable("MagicCube_client" "src/ClientMain.cpp")
+	target_link_libraries("MagicCube_client" MagicCube_client_lib)
 endif()
 
 ##########client end##########
