@@ -30,5 +30,5 @@ before_install:
 script: 
     - echo Build MagicCube
     - mkdir build && cd build
-    - cmake .. && make
+    - cmake .. && make -v
     - ./bin/MagicCube_client_test
