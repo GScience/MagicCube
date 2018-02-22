@@ -34,17 +34,18 @@ else()
 	find_package(SDL2_image REQUIRED)
 endif()
 
-# use packages
 set(CLIENT_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIR})
 
 if (MSVC)
-	set(CLIENT_INCLUDE_LIBS MagicCube_block GLEW::GLEW SDL2::SDL2 glm ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
+	set(CLIENT_LINK_LIBS GLEW::GLEW SDL2::SDL2 glm ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 else()
-	set(CLIENT_INCLUDE_LIBS ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY})
+	set(CLIENT_LINK_LIBS ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY})
 endif()
 
+list(APPEND CLIENT_LINK_LIBS MagicCube_block)
+
 include_directories(CLIENT_INCLUDE_DIRS)
-target_link_libraries("MagicCube_client_lib" PRIVATE ${CLIENT_INCLUDE_LIBS})
+target_link_libraries("MagicCube_client_lib" PRIVATE ${CLIENT_LINK_LIBS})
 
 # copy resources
 if (MSVC)
