@@ -7,6 +7,10 @@ set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 # set cxx version
 set (CMAKE_CXX_STANDARD 11)
 
+# add refrences
+include_directories("src/block")
+include_directories("src/client")
+
 ##########client_lib start##########
 
 # create client lib
@@ -42,9 +46,6 @@ endif()
 include_directories(CLIENT_INCLUDE_DIRS)
 target_link_libraries("MagicCube_client_lib" PRIVATE ${CLIENT_INCLUDE_LIBS})
 
-# add refrences
-include_directories("src/block")
-
 # copy resources
 if (MSVC)
 	add_custom_command(TARGET "MagicCube_client_lib" POST_BUILD
@@ -76,9 +77,6 @@ endif()
 
 # add lib
 find_package(GTest REQUIRED)
-
-# add include dir
-include_directories("src/client")
 
 # create executable
 aux_source_directory("src/client_test" CLIENT_TEST_DIR_SRCS)
