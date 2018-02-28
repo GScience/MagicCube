@@ -15,9 +15,9 @@ void SceneGame::draw()
 	glDrawArrays(GL_QUADS, 0, 4);
 }
 
-void SceneGame::refresh(double timePassed)
+void SceneGame::refresh(const double timePassed)
 {
-
+	GameClient::getInstance().refresh(timePassed);
 }
 
 SceneGame::SceneGame() :mPerspectiveMat(glm::perspective(glm::radians(60.0f), 1.0f, 0.3f, 1000.0f))

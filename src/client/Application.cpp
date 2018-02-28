@@ -66,6 +66,9 @@ int Application::run()
 
 	//should close
 	auto shouldProgramClose = false;
+	
+	//last time refresh the scene
+	auto lastRefresh = SDL_GetTicks();
 
 	while(!shouldProgramClose)
 	{
@@ -92,6 +95,11 @@ int Application::run()
 
 		//draw
 		mShownScene->draw();
+
+		//refresh
+		const auto nowTime = SDL_GetTicks();
+		mShownScene->refresh((nowTime - lastRefresh) / 1000.0);
+		lastRefresh = nowTime;
 
 		SDL_GL_SwapWindow(window);
 	}
