@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <sstream>
 
 using PkSize = int32_t;
