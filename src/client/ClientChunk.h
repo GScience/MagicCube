@@ -5,6 +5,7 @@
 #include <tuple>
 #include "IBlock.h"
 #include <map>
+#include <atomic>
 
 #define MAKE_LIGHT_COLOR(r,g,b) (static_cast<uint8_t>(r) + (static_cast<uint8_t>(g) << 4) + (static_cast<uint8_t>(b) << 8))
 #define GET_LIGHT_COLOR_R(color) (static_cast<uint16_t>(static_cast<uint16_t>(color) << 12) >> 12)
@@ -37,6 +38,7 @@ public:
 class ClientChunk
 {
 	friend class ClientChunkGroup;
+	friend class GameClient;
 
 	ClientChunk() = default;
 	//!save all block
@@ -52,8 +54,17 @@ class ClientChunk
 	//!load chunk with location
 	bool load(int32_t chunkX, int32_t chunkY, int32_t chunkZ);
 	void unload();
+	
+	//!is valid
+	std::atomic_bool mIsValid;
 
 public:
+	//is a valid chunk
+	bool isValid() const
+	{
+		return mIsValid;
+	}
+
 	int32_t getChunkX() const { return mChunkX; }
 	int8_t getChunkY() const { return mChunkY; }
 	int32_t getChunkZ() const { return mChunkZ; }
