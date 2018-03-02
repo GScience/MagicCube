@@ -1,6 +1,6 @@
 #include "ClientChunk.h"
-#include <algorithm>
 #include "GameClient.h"
+#include "Task.h"
 
 void ClientChunkGroup::init(const size_t poolSize)
 {
@@ -43,14 +43,18 @@ bool ClientChunk::load(const int32_t chunkX, const int32_t chunkY, const int32_t
 
 	mChunkX = chunkX;
 	mChunkY = chunkY;
-	
-	GameClient::getInstance().addTask([&]() { GameClient::getInstance().downloadChunk(*this); });
+	mChunkZ = chunkZ;
+
+	Task chunkLoadTask([&]() { return GameClient::getInstance().downloadChunkData(chunkX, chunkY, chunkZ); });
+
+	while (!chunkLoadTask.check());
 
 	return true;
 }
 
 void ClientChunk::unload()
 {
+	mIsValid = false;
 	mBlockData.clear();
 }
 
@@ -97,6 +101,7 @@ void ClientChunkGroup::unloadChunk(int32_t chunkX, int32_t chunkY, int32_t chunk
 		return;
 
 	//remove
-	mChunkMap.erase(result);
+	result->second->unload();
 	mFreeChunkPool.push_back(result->second);
+	mChunkMap.erase(result);
 }

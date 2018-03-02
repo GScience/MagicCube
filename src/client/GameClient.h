@@ -2,6 +2,7 @@
 
 #include "ClientChunk.h"
 #include <functional>
+#include "NetPackage/NetPackageChunk.h"
 
 class GameClient
 {
@@ -40,6 +41,8 @@ public:
 	//!refresh
 	void refresh(double timePassed);
 	
-	//!gen chunk data
-	void downloadChunk(ClientChunk& chunk);
+	/*!gen chunk data
+	 * should be thread-safety
+	 */
+	std::shared_ptr<NetPackageChunk> downloadChunkData(int32_t chunkX, int32_t chunkY, int32_t chunkZ);
 };

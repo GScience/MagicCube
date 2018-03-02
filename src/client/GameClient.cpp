@@ -1,5 +1,6 @@
 #include "GameClient.h"
 #include "BlockList.h"
+#include <thread>
 
 void GameClient::start(const ClientType clientType, const char* serverPotr)
 {
@@ -21,7 +22,9 @@ void GameClient::refresh(const double timePassed)
 		func();
 }
 
-void GameClient::downloadChunk(ClientChunk& chunk)
+std::shared_ptr<NetPackageChunk> GameClient::downloadChunkData(const int32_t chunkX, const int32_t chunkY, const int32_t chunkZ)
 {
-	
+	auto test = std::make_shared<NetPackageChunk>();
+
+	return test;
 }
