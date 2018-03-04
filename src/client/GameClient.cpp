@@ -4,6 +4,8 @@
 
 #define LOCAL_PORT 23333
 
+std::thread clientThread;
+
 void GameClient::connect(const ClientType clientType, const char* serverPotr)
 {
 	if (clientType == LocalServer && serverPotr != nullptr)
@@ -12,7 +14,7 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 	if (clientType == LocalServer)
 	{
 		mLocalServer = std::make_shared<GameServer>("127.0.0.1", LOCAL_PORT);
-		mLocalServer->start();
+		mLocalServer->start(true);
 	}
 	else
 		throw std::invalid_argument("don't support to connect to the remote server");
@@ -22,6 +24,13 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 
 	//connect to server
 	mSocket.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), LOCAL_PORT));
+
+	//create client thread
+	clientThread = std::thread([&]
+	()
+	{
+		mIoServer.run();
+	});
 
 	//send shake hand package
 	auto result = mSocket.send(asio::buffer(NetPackageShakehand().toString()));

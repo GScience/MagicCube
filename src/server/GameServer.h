@@ -1,12 +1,32 @@
 #pragma once
 
 #include <asio.hpp>
-#include <deque>
+#include <vector>
+#include <queue>
+#include <mutex>
+
+class NetPlayer
+{
+	friend class GameServer;
+
+	//!player client socket
+	asio::ip::tcp::socket mSocket;
+
+public:
+	explicit NetPlayer(asio::io_service& ioServer);
+
+	//!receive net package
+	void asyncReceive();
+};
 
 class GameServer
 {
-	std::vector<asio::ip::tcp::socket> mNetPlayerList;
+	//!save all socket
+	std::vector<NetPlayer> mNetPlayerList;
+
+	//!server io
 	asio::io_service mIoServer;
+	//!server acceptor
 	asio::ip::tcp::acceptor mAcceptor;
 
 public:
@@ -16,6 +36,6 @@ public:
 		
 	}
 
-	void start();
+	void start(bool async = false);
 	void asyncAccept();
 };
