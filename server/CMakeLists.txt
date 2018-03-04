@@ -11,6 +11,11 @@ set (CMAKE_CXX_STANDARD 11)
 aux_source_directory("src/server" BLOCK_DIR_SRCS)
 add_library("MagicCube_server" ${BLOCK_DIR_SRCS})
 
+# find packages
+if (NOT MSVC)
+	set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+endif()
+
 # add asio support
 if (MSVC)
 	find_library(ASIO REQUIRED)
