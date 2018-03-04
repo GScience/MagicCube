@@ -3,7 +3,7 @@
 #include <cstring>
 #include <sstream>
 
-using PkSize = int32_t;
+using PkSize = uint32_t;
 
 class NetPackageBase
 {
@@ -19,10 +19,20 @@ public:
 	}
 	virtual std::string toString()
 	{
-		char sizeBuffer[sizeof(PkSize) + sizeof(char)]{ 0 };
-		memcpy(sizeBuffer, &mSize, sizeof(PkSize));
-		return sizeBuffer;
+		return toBinary(&mSize);
 	}
 
 	virtual ~NetPackageBase() = default;
+
+	static std::string toBinary(const void* data, const size_t size)
+	{
+		const auto buffer = new char[size + sizeof(char)]{ 0 };
+		memcpy(buffer, data, size);
+		return buffer;
+	}
+
+	template<class t> static std::string toBinary(t* data)
+	{
+		return toBinary(data, sizeof(t));
+	}
 };

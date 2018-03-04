@@ -1,22 +1,30 @@
 #include "GameClient.h"
 #include "BlockList.h"
-#include "GameServer.h"
-#include <thread>
+#include "NetPackage/NetPackageShakehand.h"
+
+#define LOCAL_PORT 23333
 
 void GameClient::connect(const ClientType clientType, const char* serverPotr)
 {
-	if (clientType == LocalConnection && serverPotr != nullptr)
+	if (clientType == LocalServer && serverPotr != nullptr)
 		throw std::invalid_argument("serverPotr should be nullptr while clientType is LocalConnection");
 
-	if (clientType == LocalConnection)
+	if (clientType == LocalServer)
 	{
-		GameServer localServer(14438);
-		localServer.start();
+		mLocalServer = std::make_shared<GameServer>("127.0.0.1", LOCAL_PORT);
+		mLocalServer->start();
 	}
 	else
 		throw std::invalid_argument("don't support to connect to the remote server");
-
+	
+	//init local chunk group
 	mClientChunkGroup.init();
+
+	//connect to server
+	mSocket.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), LOCAL_PORT));
+
+	//send shake hand package
+	auto result = mSocket.send(asio::buffer(NetPackageShakehand().toString()));
 }
 
 void GameClient::refresh(const double timePassed)

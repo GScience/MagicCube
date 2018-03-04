@@ -4,6 +4,8 @@
 #include <functional>
 #include "NetPackage/NetPackageChunk.h"
 #include "TaskList.h"
+#include "GameServer.h"
+#include <asio.hpp>
 
 enum ClientType
 {
@@ -14,10 +16,18 @@ class GameClient
 {
 	//!all client chunk
 	ClientChunkGroup mClientChunkGroup;
-	GameClient() = default;
+	explicit GameClient() : mSocket(mIoServer) {}
 
 	//!load chunk task
 	TaskList mLoadChunkTasks;
+
+	//!local server
+	std::shared_ptr<GameServer> mLocalServer = nullptr;
+
+	//!client io server
+	asio::io_service mIoServer;
+	//!socket
+	asio::ip::tcp::socket mSocket;
 
 public:
 	//!get client instance

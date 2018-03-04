@@ -20,5 +20,9 @@ endif()
 set(SERVER_INCLUDE_DIRS ${ASIO_INCLUDE_DIR})
 set(SERVER_LINK_LIBS ${ASIO_LIBRARY})
 
+list (APPEND SERVER_LINK_LIBS "MagicCube_util")
+
+list(APPEND SERVER_INCLUDE_DIRS "src/block" "src/client" "src/server" "src/util" "src/server/net_package")
+
 include_directories(${SERVER_INCLUDE_DIRS})
 target_link_libraries("MagicCube_server" PRIVATE ${SERVER_LINK_LIBS})

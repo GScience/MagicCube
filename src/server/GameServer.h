@@ -10,7 +10,11 @@ class GameServer
 	asio::ip::tcp::acceptor mAcceptor;
 
 public:
-	explicit GameServer(const unsigned short port) :mAcceptor(asio::ip::tcp::acceptor(mIoServer, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))) {}
+	explicit GameServer(const char* address, const unsigned short port) :
+	mAcceptor(asio::ip::tcp::acceptor(mIoServer, asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port)))
+	{
+		
+	}
 
 	void start();
 	void asyncAccept();
