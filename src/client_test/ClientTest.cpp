@@ -9,7 +9,7 @@ volatile TEST(ClientTest, ChunkTest)
 	auto& client = GameClient::getInstance();
 
 	BlockList.init();
-	client.start();
+	client.connect(LocalServer);
 	
 	GTEST_SUCCESS_("Succeesfully init block list and start local client");
 	GTEST_MESSAGE_("Test ChunkGroup", testing::TestPartResult::kSuccess);

@@ -1,3 +1,4 @@
+#include <SDL2/SDL_log.h>
 #include "GameClient.h"
 #include "BlockList.h"
 #include "NetPackage/NetPackageShakehand.h"
@@ -34,6 +35,7 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 
 	//send shake hand package
 	auto result = mSocket.send(asio::buffer(NetPackageShakehand().toString()));
+	SDL_Log("[Server]Connect to server...");
 }
 
 void GameClient::refresh(const double timePassed)

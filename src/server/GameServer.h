@@ -4,13 +4,26 @@
 #include <vector>
 #include <queue>
 #include <mutex>
+#include "NetPackage/NetPackageBase.h"
 
 class NetPlayer
 {
 	friend class GameServer;
 
+	enum LoginStage
+	{
+		LoginShakehand, LoginDone
+	};
+
 	//!player client socket
 	asio::ip::tcp::socket mSocket;
+
+	//!package size buffer
+	std::array<char, sizeof(PkSize)> mTmpPkSizeBuffer;
+	std::vector<char> mTmpPkBuffer;
+
+	//!login stage
+	LoginStage mLoginStage = LoginShakehand;
 
 public:
 	explicit NetPlayer(asio::io_service& ioServer);
@@ -29,13 +42,18 @@ class GameServer
 	//!server acceptor
 	asio::ip::tcp::acceptor mAcceptor;
 
+	//!new client
+	NetPlayer* mNewNetPlayer = nullptr;
+
 public:
 	explicit GameServer(const char* address, const unsigned short port) :
-	mAcceptor(asio::ip::tcp::acceptor(mIoServer, asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port)))
-	{
-		
-	}
+		mAcceptor(asio::ip::tcp::acceptor(mIoServer, asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port)))
+	{}
 
+	~GameServer()
+	{
+		delete mNewNetPlayer;
+	}
 	void start(bool async = false);
 	void asyncAccept();
 };

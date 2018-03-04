@@ -5,7 +5,7 @@
 class NetPackageShakehand : NetPackageBase
 {
 public:
-	const int version = 1;
+	int version = 0;
 
 	NetPackageShakehand()
 	{
@@ -15,12 +15,15 @@ public:
 	void fromStringStream(std::stringstream& packageData) override
 	{
 		NetPackageBase::fromStringStream(packageData);
+		version = *fromBinaryStream<decltype(version)>(packageData);
 	}
 
 	std::string toString() override
 	{
-		mSize = sizeof(NetPackageShakehand);
+		auto data = toBinary(&version);
 
-		return NetPackageBase::toString() + toBinary(&version);
+		mSize = data.size() * sizeof(char);
+
+		return NetPackageBase::toString() + data;
 	}
 };

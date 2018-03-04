@@ -11,14 +11,7 @@ set (CMAKE_CXX_STANDARD 11)
 aux_source_directory("src/server" BLOCK_DIR_SRCS)
 add_library("MagicCube_server" ${BLOCK_DIR_SRCS})
 
-if (MSVC)
-	find_library(ASIO_LIBRARY asio)
-else()
-	find_library(asio REQUIRED)
-endif()
-
-set(SERVER_INCLUDE_DIRS ${ASIO_INCLUDE_DIR})
-set(SERVER_LINK_LIBS ${ASIO_LIBRARY})
+find_library(asio REQUIRED)
 
 list (APPEND SERVER_LINK_LIBS "MagicCube_util")
 
