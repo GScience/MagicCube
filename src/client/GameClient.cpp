@@ -34,7 +34,7 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 	});
 
 	//send shake hand package
-	auto result = mSocket.send(asio::buffer(NetPackageShakehand().toString()));
+	auto result = mSocket.send(asio::buffer(NetPackageShakehand(1).toString()));
 	SDL_Log("[Server]Connect to server...");
 }
 

@@ -82,6 +82,10 @@ void NetPlayer::asyncReceive()
 			{
 				NetPackageShakehand shakehandPackage;
 				shakehandPackage.fromStringStream(packageStream);
+
+				if (shakehandPackage.version != 1)
+					throw std::runtime_error("Wrong client version");
+
 				break;
 			}
 			default:

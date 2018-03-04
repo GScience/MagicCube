@@ -7,9 +7,10 @@ class NetPackageShakehand : NetPackageBase
 public:
 	int version = 0;
 
-	NetPackageShakehand()
+	explicit NetPackageShakehand(const int version = 0)
 	{
 		mSize = sizeof(NetPackageShakehand);
+		this->version = version;
 	}
 
 	void fromStringStream(std::stringstream& packageData) override
