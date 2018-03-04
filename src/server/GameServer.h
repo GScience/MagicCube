@@ -19,7 +19,7 @@ class NetPlayer
 	asio::ip::tcp::socket mSocket;
 
 	//!package size buffer
-	std::array<char, sizeof(PkSize)> mTmpPkSizeBuffer;
+	std::vector<char> mTmpPkSizeBuffer;
 	std::vector<char> mTmpPkBuffer;
 
 	//!login stage

@@ -40,7 +40,7 @@ void GameServer::asyncAccept()
 
 NetPlayer::NetPlayer(asio::io_service& ioServer) :
 	mSocket(ioServer),
-	mTmpPkSizeBuffer{ 0 }
+	mTmpPkSizeBuffer(sizeof(PkSize), 0)
 {}
 
 void NetPlayer::asyncReceive()
