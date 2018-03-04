@@ -46,11 +46,11 @@ bool ClientChunk::load(const int32_t chunkX, const int32_t chunkY, const int32_t
 	mChunkZ = chunkZ;
 
 
-	GameClient::getInstance().addLoadChunkTask(Task([&]
+	GameClient::getInstance().addLoadChunkTask(std::move(Task([&]
 	()
 	{
 		return GameClient::getInstance().downloadChunkData(chunkX, chunkY, chunkZ);
-	}), [&]
+	})), [&]
 	(const Task& task)
 	{
 		auto result = task.get();

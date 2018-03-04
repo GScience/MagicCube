@@ -10,9 +10,9 @@ class TaskList
 	std::list<TaskWithCallback> mTaskList;
 
 public:
-	void addTask(Task& task, const std::function<void(const Task&)>& onFinish)
+	void addTask(Task&& task, const std::function<void(const Task&)>& onFinish)
 	{
-		mTaskList.emplace_back(std::make_pair(std::forward<Task>(task), onFinish));
+		mTaskList.emplace_back(std::make_pair(std::move(task), onFinish));
 	}
 
 	void refresh();

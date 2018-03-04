@@ -44,9 +44,9 @@ public:
 	void connect(ClientType clientType = LocalServer, const char* serverPotr = nullptr);
 
 	//!add task
-	void addLoadChunkTask(Task& task, const std::function<void(const Task&)>& onFinish)
+	void addLoadChunkTask(Task&& task, const std::function<void(const Task&)>& onFinish)
 	{
-		mLoadChunkTasks.addTask(task, onFinish);
+		mLoadChunkTasks.addTask(std::move(task), onFinish);
 	}
 
 	//!refresh
