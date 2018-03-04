@@ -8,10 +8,10 @@ using TaskReturnObj = std::shared_ptr<void>;
 class Task
 {
 	//what should the task do
-	std::future<TaskReturnObj> mFuture;
+	mutable std::future<TaskReturnObj> mFuture;
 
 	//result
-	TaskReturnObj mTaskResult = nullptr;
+	mutable TaskReturnObj mTaskResult = nullptr;
 
 public:
 	explicit Task(const std::function<TaskReturnObj()>& func) :mFuture(std::async(func))
@@ -26,7 +26,7 @@ public:
 	}
 
 	//!get result
-	TaskReturnObj get()
+	TaskReturnObj get() const
 	{
 		if (mFuture.valid() && check())
 			mTaskResult = mFuture.get();

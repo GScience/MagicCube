@@ -3,6 +3,12 @@
 #include "ClientChunk.h"
 #include <functional>
 #include "NetPackage/NetPackageChunk.h"
+#include "TaskList.h"
+
+enum ClientType
+{
+	LocalServer, RemoteServer
+};
 
 class GameClient
 {
@@ -10,15 +16,10 @@ class GameClient
 	ClientChunkGroup mClientChunkGroup;
 	GameClient() = default;
 
-	//!all task should do
-	std::vector<std::function<void()>> mTasks;
+	//!load chunk task
+	TaskList mLoadChunkTasks;
 
 public:
-	enum ClientType
-	{
-		LocalConnection, RemoteConnection
-	};
-
 	//!get client instance
 	static GameClient& getInstance()
 	{
@@ -30,12 +31,12 @@ public:
 	ClientChunkGroup& getClientChunkGroup() { return mClientChunkGroup; }
 
 	//!start client
-	void start(ClientType clientType = LocalConnection, const char* serverPotr = nullptr);
+	void connect(ClientType clientType = LocalServer, const char* serverPotr = nullptr);
 
 	//!add task
-	void addTask(const std::function<void()>& function)
+	void addLoadChunkTask(Task& task, const std::function<void(const Task&)>& onFinish)
 	{
-		mTasks.push_back(function);
+		mLoadChunkTasks.addTask(task, onFinish);
 	}
 
 	//!refresh

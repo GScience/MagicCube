@@ -15,6 +15,7 @@ matrix:
             - libsdl2-image-dev
             - libgtest-dev
             - libglm-dev
+            - libasio-dev
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
 before_install:

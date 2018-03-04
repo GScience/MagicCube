@@ -11,7 +11,6 @@ set (CMAKE_CXX_STANDARD 11)
 
 # create client lib
 aux_source_directory("src/client" CLIENT_DIR_SRCS)
-aux_source_directory("src/client/net_package" CLIENT_NET_PACKAGE_DIR_SRCS)
 add_library("MagicCube_client_lib" ${CLIENT_DIR_SRCS} ${CLIENT_NET_PACKAGE_DIR_SRCS})
 
 # find packages
@@ -39,10 +38,10 @@ else()
 	set(CLIENT_LINK_LIBS ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY})
 endif()
 
-list(APPEND CLIENT_LINK_LIBS MagicCube_block MagicCube_util)
+list(APPEND CLIENT_LINK_LIBS MagicCube_block MagicCube_util MagicCube_server)
 
 # add include direction
-list(APPEND CLIENT_INCLUDE_DIRS "src/block" "src/client" "src/util")
+list(APPEND CLIENT_INCLUDE_DIRS "src/block" "src/client" "src/server" "src/util" "src/server/net_package")
 include_directories(${CLIENT_INCLUDE_DIRS})
 target_link_libraries("MagicCube_client_lib" PRIVATE ${CLIENT_LINK_LIBS})
 

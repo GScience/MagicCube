@@ -45,9 +45,16 @@ bool ClientChunk::load(const int32_t chunkX, const int32_t chunkY, const int32_t
 	mChunkY = chunkY;
 	mChunkZ = chunkZ;
 
-	Task chunkLoadTask([&]() { return GameClient::getInstance().downloadChunkData(chunkX, chunkY, chunkZ); });
 
-	while (!chunkLoadTask.check());
+	GameClient::getInstance().addLoadChunkTask(Task([&]
+	()
+	{
+		return GameClient::getInstance().downloadChunkData(chunkX, chunkY, chunkZ);
+	}), [&]
+	(const Task& task)
+	{
+		auto result = task.get();
+	});
 
 	return true;
 }
