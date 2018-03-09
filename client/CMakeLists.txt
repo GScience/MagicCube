@@ -23,15 +23,14 @@ find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLM REQUIRED)
 
+find_library(ASIO REQUIRED)
+
 if (MSVC)
 	find_library(SDL2_IMAGE_LIBRARY SDL2_image)
 	find_library(dirent REQUIRED)
-	find_library(ASIO REQUIRED)
 else()
 	find_package(SDL2_image REQUIRED)
-	find_package(Boost REQUIRED COMPONENTS ASIO)
-	list (APPEND CLIENT_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
-	list (APPEND CLIENT_LINK_LIBS ${Boost_LIBRARIES})
+	list (APPEND CLIENT_INCLUDE_DIRS ${Asio_INCLUDE_DIRS})
 endif()
 
 set(CLIENT_INCLUDE_DIRS ${ASIO_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIR})

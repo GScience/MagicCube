@@ -17,12 +17,9 @@ if (NOT MSVC)
 endif()
 
 # add asio support
-if (MSVC)
-	find_library(ASIO REQUIRED)
-else()
-	find_package(Boost REQUIRED COMPONENTS ASIO)
-	list (APPEND SERVER_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
-	list (APPEND SERVER_LINK_LIBS ${Boost_LIBRARIES})
+find_library(ASIO REQUIRED)
+if (NOT MSVC)
+	list (APPEND SERVER_INCLUDE_DIRS ${Asio_INCLUDE_DIRS})
 endif()
 
 list (APPEND SERVER_LINK_LIBS "MagicCube_util")
