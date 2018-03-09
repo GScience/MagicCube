@@ -12,4 +12,10 @@ set (CMAKE_CXX_STANDARD 11)
 aux_source_directory("src/util" UTIL_DIR_SRCS)
 add_library("MagicCube_util" ${UTIL_DIR_SRCS})
 
+# add asio support
+find_library(ASIO REQUIRED)
+if (NOT MSVC)
+	include_directories(${Asio_INCLUDE_DIRS})
+endif()
+
 ##########util_lib end##########

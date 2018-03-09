@@ -5,8 +5,6 @@
 
 #define LOCAL_PORT 23333
 
-std::thread clientThread;
-
 void GameClient::connect(const ClientType clientType, const char* serverPotr)
 {
 	if (clientType == LocalServer && serverPotr != nullptr)
@@ -24,17 +22,9 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 	mClientChunkGroup.init();
 
 	//connect to server
-	mSocket.connect(asio::ip::tcp::endpoint(asio::ip::address::from_string("127.0.0.1"), LOCAL_PORT));
+	mNetClient = std::unique_ptr<NetClient>(new NetClient("127.0.0.1", LOCAL_PORT));
+	mNetClient->sendPackage(NetPackageShakehand());
 
-	//create client thread
-	clientThread = std::thread([&]
-	()
-	{
-		mIoServer.run();
-	});
-
-	//send shake hand package
-	auto result = mSocket.send(asio::buffer(NetPackageShakehand(1).toString()));
 	SDL_Log("[Server]Connect to server...");
 }
 
@@ -53,4 +43,9 @@ std::shared_ptr<NetPackageChunk> GameClient::downloadChunkData(const int32_t chu
 	auto test = std::make_shared<NetPackageChunk>();
 
 	return test;
+}
+
+void GameClient::close()
+{
+
 }

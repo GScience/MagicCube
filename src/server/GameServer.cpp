@@ -1,22 +1,21 @@
 #include "GameServer.h"
 #include <thread>
-#include "NetPackage/NetPackageBase.h"
+#include <iostream>
 #include "NetPackage/NetPackageShakehand.h"
 
 std::thread serverThread;
+
+std::atomic_bool shouldStopRefresh = false;
 
 void GameServer::start(const bool async)
 {
 	asyncAccept();
 
-	if (async)
-		serverThread = std::thread([&]
-		()
-		{
-			mIoServer.run();
-		});
-	else
-		mIoServer.run();
+	serverThread = std::thread([&]()
+	{
+		while (!shouldStopRefresh)
+			mIoServer.run_one();
+	});
 }
 
 void GameServer::asyncAccept()
@@ -85,6 +84,8 @@ void NetPlayer::asyncReceive()
 
 				if (shakehandPackage.version != 1)
 					throw std::runtime_error("Wrong client version");
+				else
+					std::cout << "[Server]accept a connection" << std::endl;
 
 				break;
 			}
@@ -95,4 +96,12 @@ void NetPlayer::asyncReceive()
 			asyncReceive();
 		});
 	}
+}
+
+GameServer::~GameServer()
+{
+	shouldStopRefresh = true;
+	serverThread.join();
+
+	delete mNewNetPlayer;
 }

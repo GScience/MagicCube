@@ -11,14 +11,16 @@ protected:
 	PkSize mSize = -1;
 
 public:
-	virtual PkSize getPackageSize() { return 0; }
+	virtual PkSize getPackageSize() const { return sizeof(PkSize); }
 	virtual void fromStringStream(std::stringstream& stream)
 	{
 		mSize = *fromBinaryStream<PkSize>(stream);
 	}
-	virtual std::string toString()
+	virtual std::string toString() const
 	{
-		return toBinary(&mSize);
+		const auto size = getPackageSize();
+
+		return toBinary(&size);
 	}
 
 	virtual ~NetPackageBase() = default;

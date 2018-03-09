@@ -5,7 +5,7 @@
 #include "NetPackage/NetPackageChunk.h"
 #include "TaskList.h"
 #include "GameServer.h"
-#include <asio.hpp>
+#include "Net.h"
 
 enum ClientType
 {
@@ -16,7 +16,6 @@ class GameClient
 {
 	//!all client chunk
 	ClientChunkGroup mClientChunkGroup;
-	explicit GameClient() : mSocket(mIoServer) {}
 
 	//!load chunk task
 	TaskList mLoadChunkTasks;
@@ -25,9 +24,7 @@ class GameClient
 	std::shared_ptr<GameServer> mLocalServer = nullptr;
 
 	//!client io server
-	asio::io_service mIoServer;
-	//!socket
-	asio::ip::tcp::socket mSocket;
+	std::unique_ptr<NetClient> mNetClient = nullptr;
 
 public:
 	//!get client instance
@@ -56,4 +53,7 @@ public:
 	 * should be thread-safety
 	 */
 	std::shared_ptr<NetPackageChunk> downloadChunkData(int32_t chunkX, int32_t chunkY, int32_t chunkZ);
+
+	//!close
+	void close();
 };

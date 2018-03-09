@@ -1,16 +1,17 @@
 #pragma once
 
 #include "NetPackageBase.h"
+#define NET_PACKAGE_VERSION 1
 
-class NetPackageShakehand : NetPackageBase
+class NetPackageShakehand : public NetPackageBase
 {
 public:
 	int version = 0;
 
-	explicit NetPackageShakehand(const int version = 0)
+	explicit NetPackageShakehand()
 	{
 		mSize = sizeof(NetPackageShakehand);
-		this->version = version;
+		version = NET_PACKAGE_VERSION;
 	}
 
 	void fromStringStream(std::stringstream& packageData) override
@@ -19,12 +20,15 @@ public:
 		version = *fromBinaryStream<decltype(version)>(packageData);
 	}
 
-	std::string toString() override
+	std::string toString() const override
 	{
-		auto data = toBinary(&version);
-
-		mSize = data.size() * sizeof(char);
+		const auto data = toBinary(&version);
 
 		return NetPackageBase::toString() + data;
+	}
+
+	PkSize getPackageSize() const override
+	{
+		return NetPackageBase::getPackageSize() + sizeof(int);
 	}
 };

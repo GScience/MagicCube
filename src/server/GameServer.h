@@ -4,7 +4,7 @@
 #include <vector>
 #include <queue>
 #include <mutex>
-#include "NetPackage/NetPackageBase.h"
+#include "NetPackageBase.h"
 
 class NetPlayer
 {
@@ -50,10 +50,8 @@ public:
 		mAcceptor(asio::ip::tcp::acceptor(mIoServer, asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port)))
 	{}
 
-	~GameServer()
-	{
-		delete mNewNetPlayer;
-	}
+	~GameServer();
+
 	void start(bool async = false);
 	void asyncAccept();
 };
