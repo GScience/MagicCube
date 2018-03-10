@@ -4,7 +4,7 @@
 
 NetIoServerBase::NetIoServerBase()
 {
-	
+	mIsStopped = false;
 }
 
 NetIoServerBase::~NetIoServerBase()

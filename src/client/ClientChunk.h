@@ -55,7 +55,7 @@ class ClientChunk
 	void unload();
 	
 	//!is valid
-	std::atomic_bool mIsValid = false;
+	std::atomic_bool mIsValid;
 
 public:
 	//is a valid chunk

@@ -15,7 +15,7 @@ class NetIoServerBase
 	std::vector<std::thread> mIoThreadPool;
 
 	//!is stopped
-	std::atomic_bool mIsStopped = false;
+	std::atomic_bool mIsStopped;
 
 protected:
 	//!create an event refresh thread
