@@ -1,8 +1,8 @@
 #pragma once
 
+#include <atomic>
 #include <asio.hpp>
 #include <thread>
-#include <atomic>
 #include "NetPackageBase.h"
 
 /*!package some basic operation with io_service*/
@@ -24,8 +24,8 @@ protected:
 	//!create a socket
 	std::unique_ptr<asio::ip::tcp::socket> createSocket();
 
-	//!init
 	~NetIoServerBase();
+	NetIoServerBase();
 
 	//!get io server
 	asio::io_service& getIoServer()

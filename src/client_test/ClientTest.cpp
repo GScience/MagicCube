@@ -2,7 +2,6 @@
 #include <gtest/gtest.h>
 #include "BlockList.h"
 #include "GameClient.h"
-#include <chrono>
 
 volatile TEST(ClientTest, ChunkTest)
 {

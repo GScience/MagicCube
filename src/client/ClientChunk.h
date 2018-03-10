@@ -40,7 +40,6 @@ class ClientChunk
 	friend class ClientChunkGroup;
 	friend class GameClient;
 
-	ClientChunk() = default;
 	//!save all block
 	ClientBlock mBlocks[4096];
 	//!save block data
@@ -56,7 +55,7 @@ class ClientChunk
 	void unload();
 	
 	//!is valid
-	std::atomic_bool mIsValid;
+	std::atomic_bool mIsValid = false;
 
 public:
 	//is a valid chunk

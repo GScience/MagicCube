@@ -2,6 +2,11 @@
 #include "NetPackage/NetPackageShakehand.h"
 #include <iostream>
 
+NetIoServerBase::NetIoServerBase()
+{
+	
+}
+
 NetIoServerBase::~NetIoServerBase()
 {
 	//stop io thread
@@ -42,7 +47,7 @@ NetClient::NetClient(const std::string& address, const unsigned short port)
 
 void NetClient::sendPackage(const NetPackageBase& package) const
 {
-	const auto sentSize = mClientSocket->send(asio::buffer(package.toString()));
+	mClientSocket->send(asio::buffer(package.toString()));
 }
 
 NetServer::NetServer(const std::string& address, const unsigned short port) :
@@ -61,7 +66,10 @@ void NetServer::asyncAccept()
 	std::function<void(const asio::error_code&)> acceptFunc = std::bind([&](const asio::error_code& er, NetPlayer* netPlayer)
 	{
 		if (er)
+		{
+			delete netPlayer;
 			return;
+		}
 
 		mNetPlayers.emplace_back(netPlayer);
 		mNetPlayers.back()->asyncReceive();
