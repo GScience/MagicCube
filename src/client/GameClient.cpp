@@ -13,7 +13,6 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 	if (clientType == LocalServer)
 	{
 		mLocalServer = std::make_shared<GameServer>("127.0.0.1", LOCAL_PORT);
-		mLocalServer->start(true);
 	}
 	else
 		throw std::invalid_argument("don't support to connect to the remote server");

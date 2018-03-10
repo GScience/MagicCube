@@ -11,7 +11,7 @@ protected:
 	PkSize mSize = -1;
 
 public:
-	virtual PkSize getPackageSize() const { return sizeof(PkSize); }
+	virtual PkSize getPackageSize() const { return 0; }
 	virtual void fromStringStream(std::stringstream& stream)
 	{
 		mSize = *fromBinaryStream<PkSize>(stream);
