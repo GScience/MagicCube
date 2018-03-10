@@ -2,17 +2,12 @@
 #include "NetPackage/NetPackageShakehand.h"
 #include <iostream>
 
-NetIoServerBase::NetIoServerBase()
-{
-	//create refresh thread
-	for (unsigned i = 0; i < std::thread::hardware_concurrency();++i)
-		createRefreshThread();
-}
-
 NetIoServerBase::~NetIoServerBase()
 {
 	//stop io thread
 	mIoServer.stop();
+
+	mIsStopped = true;
 
 	//wait
 	for (auto& thread : mIoThreadPool)
@@ -24,7 +19,7 @@ void NetIoServerBase::createRefreshThread()
 {
 	mIoThreadPool.emplace_back(std::thread([&]()
 	{
-		while (!mIoServer.stopped())
+		while (!mIsStopped)
 			mIoServer.run_one();
 	}));
 }
@@ -36,7 +31,12 @@ std::unique_ptr<asio::ip::tcp::socket> NetIoServerBase::createSocket()
 
 NetClient::NetClient(const std::string& address, const unsigned short port)
 {
+	//create refresh thread
+	createRefreshThread();
+
+	//create socket
 	mClientSocket = createSocket();
+	//connect
 	mClientSocket->connect(asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port));
 }
 
@@ -49,24 +49,27 @@ NetServer::NetServer(const std::string& address, const unsigned short port) :
 	NetIoServerBase(),
 	mAcceptor(asio::ip::tcp::acceptor(getIoServer(), asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port)))
 {
-	asyncAccept();
+	//create refresh thread
 	createRefreshThread();
+	asyncAccept();
 }
 
 void NetServer::asyncAccept()
 {
 	auto newNetPlayer = new NetPlayer(createSocket());
 
-	mAcceptor.async_accept(*newNetPlayer->mSocket, [&](const asio::error_code& er)
+	std::function<void(const asio::error_code&)> acceptFunc = std::bind([&](const asio::error_code& er, NetPlayer* netPlayer)
 	{
 		if (er)
 			return;
 
-		mNetPlayers.emplace_back(newNetPlayer);
+		mNetPlayers.emplace_back(netPlayer);
 		mNetPlayers.back()->asyncReceive();
 
 		asyncAccept();
-	});
+	}, std::placeholders::_1, newNetPlayer);
+
+	mAcceptor.async_accept(*newNetPlayer->mSocket, acceptFunc);
 }
 
 

@@ -14,6 +14,9 @@ class NetIoServerBase
 	//!io refresh thread
 	std::vector<std::thread> mIoThreadPool;
 
+	//!is stopped
+	std::atomic_bool mIsStopped = false;
+
 protected:
 	//!create an event refresh thread
 	void createRefreshThread();
@@ -22,7 +25,6 @@ protected:
 	std::unique_ptr<asio::ip::tcp::socket> createSocket();
 
 	//!init
-	NetIoServerBase();
 	~NetIoServerBase();
 
 	//!get io server
@@ -57,10 +59,6 @@ public:
 
 	//!receive net package
 	void asyncReceive();
-	~NetPlayer()
-	{
-		
-	}
 };
 
 /*!a simple net server*/
@@ -71,7 +69,7 @@ class NetServer : NetIoServerBase
 
 	//!save all net player
 	std::vector<std::unique_ptr<NetPlayer>> mNetPlayers;
-
+	
 public:
 	NetServer(const std::string& address, unsigned short port);
 	void asyncAccept();
