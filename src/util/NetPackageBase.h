@@ -4,23 +4,30 @@
 #include <sstream>
 
 using PkSize = uint32_t;
+using PkStrSize = uint16_t;
+using PkId = uint16_t;
 
 class NetPackageBase
 {
-protected:
-	PkSize mSize = -1;
-
 public:
-	virtual PkSize getPackageSize() const { return 0; }
+	PkId packageId;
+
+	virtual PkSize getPackageSize() const { return sizeof(PkId); }
 	virtual void fromStringStream(std::stringstream& stream)
 	{
-		mSize = *fromBinaryStream<PkSize>(stream);
+		packageId = fromBinaryStream<PkId>(stream);
 	}
-	virtual std::string toString() const
+	virtual std::string toBinaryString() const
 	{
 		const auto size = getPackageSize();
 
-		return toBinary(&size);
+		auto totalBinaryStr =
+			//package size
+			toBinary(&size) +
+			//package id(for callback)
+			toBinary(&packageId);
+
+		return totalBinaryStr;
 	}
 
 	virtual ~NetPackageBase() = default;
@@ -37,17 +44,38 @@ public:
 	{
 		return toBinary(data, sizeof(t));
 	}
-
-	template<class t> static t* fromBinary(void* data)
+	static std::string toBinary(const std::string& data)
 	{
-		return reinterpret_cast<t*>(data);
+		const auto size = static_cast<PkStrSize>(data.size());
+		const auto sizeBinary = toBinary<>(&size);
+
+		return sizeBinary + toBinary(data.c_str(), size);
 	}
 
-	template<class t> static t* fromBinaryStream(std::stringstream& stream)
+	static std::string fromBinaryStream(std::stringstream& stream)
+	{
+		const auto size = fromBinaryStream<PkStrSize>(stream);
+		std::string str(size, 0);
+		stream.read(const_cast<char*>(&str.c_str()[0]), size);
+
+		return str;
+	}
+
+	template<class t> static t fromBinaryStream(std::stringstream& stream)
 	{
 		char sizeBuffer[sizeof(t)];
 		stream.read(sizeBuffer, sizeof(t));
 
-		return fromBinary<t>(sizeBuffer);
+		return *reinterpret_cast<t*>(sizeBuffer);
+	}
+
+	template<class t> static size_t getSize(const t& obj)
+	{
+		return sizeof(t);
+	}
+
+	static size_t getSize(const std::string& str)
+	{
+		return sizeof(PkStrSize) + str.size();
 	}
 };

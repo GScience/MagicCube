@@ -24,6 +24,7 @@ void NetIoServerBase::createRefreshThread()
 {
 	mIoThreadPool.emplace_back(std::thread([&]()
 	{
+		std::cout << "start a net refresh thread" << std::endl;
 		while (!mIsStopped)
 			mIoServer.run_one();
 	}));
@@ -47,7 +48,7 @@ NetClient::NetClient(const std::string& address, const unsigned short port)
 
 void NetClient::sendPackage(const NetPackageBase& package) const
 {
-	mClientSocket->send(asio::buffer(package.toString()));
+	mClientSocket->send(asio::buffer(package.toBinaryString()));
 }
 
 NetServer::NetServer(const std::string& address, const unsigned short port) :
@@ -88,56 +89,47 @@ NetPlayer::NetPlayer(std::unique_ptr<asio::ip::tcp::socket>&& ioServer) :
 
 void NetPlayer::asyncReceive()
 {
-	if (mTmpPkBuffer.empty())
+	//read package size
+	asio::async_read(*mSocket, asio::buffer(mTmpPkSizeBuffer), [&]
+	(const asio::error_code& er, size_t readSize)
 	{
-		//read package size
-		asio::async_read(*mSocket, asio::buffer(mTmpPkSizeBuffer), [&]
-		(const asio::error_code& er, size_t readSize)
-		{
-			if (er || readSize != mTmpPkSizeBuffer.size() * sizeof(char))
-				return;
+		if (er || readSize != mTmpPkSizeBuffer.size() * sizeof(char))
+			return;
 
-			//get package size
-			auto packageSize = *reinterpret_cast<PkSize*>(&mTmpPkSizeBuffer[0]);
-			mTmpPkBuffer.resize(packageSize);
+		//get package size
+		auto packageSize = *reinterpret_cast<PkSize*>(&mTmpPkSizeBuffer[0]);
+		mTmpPkBuffer.resize(packageSize);
 
-			asyncReceive();
-		});
-	}
-	else
-	{
 		//read package
-		asio::async_read(*mSocket, asio::buffer(mTmpPkBuffer), [&]
-		(const asio::error_code& er, size_t readSize)
+		auto readPackageSize = asio::read(*mSocket, asio::buffer(mTmpPkBuffer));
+
+		if (readPackageSize != mTmpPkBuffer.size() * sizeof(char))
+			return;
+
+		std::stringstream packageStream(
+			std::string(mTmpPkBuffer.begin(), mTmpPkBuffer.end())
+		);
+
+		//check stage
+		switch (mLoginStage)
 		{
-			if (er || readSize != mTmpPkSizeBuffer.size() * sizeof(char))
-				return;
+		case LoginShakehand:
+		{
+			NetPackageShakehand shakehandPackage;
+			shakehandPackage.fromStringStream(packageStream);
 
-			std::stringstream packageStream(
-				std::string(mTmpPkSizeBuffer.begin(), mTmpPkSizeBuffer.end()) +
-				std::string(mTmpPkBuffer.begin(), mTmpPkBuffer.end())
-			);
+			if (shakehandPackage.version != NET_PACKAGE_VERSION)
+				throw std::runtime_error("Wrong client version");
+			else
+				std::cout << "[Server]accept a connection " << shakehandPackage .playerName << std::endl;
 
-			//check stage
-			switch (mLoginStage)
-			{
-			case LoginShakehand:
-			{
-				NetPackageShakehand shakehandPackage;
-				shakehandPackage.fromStringStream(packageStream);
+			break;
+		}
+		default:
+			break;
+		}
+		mTmpPkBuffer.clear();
 
-				if (shakehandPackage.version != NET_PACKAGE_VERSION)
-					throw std::runtime_error("Wrong client version");
-				else
-					std::cout << "[Server]accept a connection" << std::endl;
-
-				break;
-			}
-			default:
-				break;
-			}
-			mTmpPkBuffer.clear();
-			asyncReceive();
-		});
-	}
+		asyncReceive();
+	});
 }

@@ -22,7 +22,9 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 
 	//connect to server
 	mNetClient = std::unique_ptr<NetClient>(new NetClient("127.0.0.1", LOCAL_PORT));
-	mNetClient->sendPackage(NetPackageShakehand());
+	auto shakeHandPackage = NetPackageShakehand();
+	shakeHandPackage.playerName = "Test Player";
+	mNetClient->sendPackage(shakeHandPackage);
 
 	SDL_Log("[Server]Connect to server...");
 }

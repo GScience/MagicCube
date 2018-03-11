@@ -7,28 +7,31 @@ class NetPackageShakehand : public NetPackageBase
 {
 public:
 	int version = 0;
+	std::string playerName;
 
 	explicit NetPackageShakehand()
 	{
-		mSize = sizeof(NetPackageShakehand);
 		version = NET_PACKAGE_VERSION;
 	}
 
 	void fromStringStream(std::stringstream& packageData) override
 	{
 		NetPackageBase::fromStringStream(packageData);
-		version = *fromBinaryStream<decltype(version)>(packageData);
+		version = fromBinaryStream<decltype(version)>(packageData);
+		playerName = fromBinaryStream(packageData);
 	}
 
-	std::string toString() const override
+	std::string toBinaryString() const override
 	{
-		const auto data = toBinary(&version);
-
-		return NetPackageBase::toString() + data;
+		return NetPackageBase::toBinaryString() + 
+			toBinary(&version) + 
+			toBinary(playerName);
 	}
 
 	PkSize getPackageSize() const override
 	{
-		return NetPackageBase::getPackageSize() + sizeof(int);
+		return NetPackageBase::getPackageSize() + 
+			getSize(version) + 
+			getSize(playerName);
 	}
 };
