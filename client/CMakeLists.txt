@@ -1,18 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-# set output dir
-set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
-set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
-
-# set cxx version
-set (CMAKE_CXX_STANDARD 11)
-
 ##########client_lib start##########
-
-# create client lib
-aux_source_directory("src/client" CLIENT_DIR_SRCS)
-add_library("MagicCube_client_lib" ${CLIENT_DIR_SRCS} ${CLIENT_NET_PACKAGE_DIR_SRCS})
-
 # find packages
 if (NOT MSVC)
 	set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
@@ -22,29 +10,29 @@ find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLM REQUIRED)
-find_library(ASIO REQUIRED)
 
 if (MSVC)
 	find_library(SDL2_IMAGE_LIBRARY SDL2_image)
 	find_library(dirent REQUIRED)
+	set(CLIENT_LINK_LIBS GLEW::GLEW SDL2::SDL2 glm ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
+	set(CLIENT_INCLUDE_DIRS)
 else()
 	find_package(SDL2_image REQUIRED)
-	list (APPEND CLIENT_INCLUDE_DIRS ${Asio_INCLUDE_DIRS})
-endif()
-
-set(CLIENT_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIR})
-
-if (MSVC)
-	set(CLIENT_LINK_LIBS GLEW::GLEW SDL2::SDL2 glm ${OPENGL_gl_LIBRARY} ${SDL2_IMAGE_LIBRARY})
-else()
 	set(CLIENT_LINK_LIBS ${GLEW_LIBRARIES} ${OPENGL_gl_LIBRARY} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY})
+	set(CLIENT_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIR})
 endif()
 
 list(APPEND CLIENT_LINK_LIBS MagicCube_block MagicCube_util MagicCube_server)
 
-# add include direction
+# add include dir
 list(APPEND CLIENT_INCLUDE_DIRS "src/block" "src/client" "src/server" "src/util" "src/server/net_package")
+
 include_directories(${CLIENT_INCLUDE_DIRS})
+
+# create client lib
+aux_source_directory("src/client" CLIENT_DIR_SRCS)
+add_library("MagicCube_client_lib" ${CLIENT_DIR_SRCS} ${CLIENT_NET_PACKAGE_DIR_SRCS})
+
 target_link_libraries("MagicCube_client_lib" PRIVATE ${CLIENT_LINK_LIBS})
 
 # copy resources
@@ -59,36 +47,36 @@ else()
 					   "${PROJECT_SOURCE_DIR}/resource"
 					   "${CMAKE_BINARY_DIR}/bin")
 endif()
-
 ##########client_lib end##########
 
-##########client start##########
 
-# create runable client
+##########client start##########
+# create runnable client
+add_executable("MagicCube_client" "src/ClientMain.cpp")
+
 if (MSVC)
-	add_executable("MagicCube_client" "src/ClientMain.cpp")
 	target_link_libraries("MagicCube_client" MagicCube_client_lib SDL2::SDL2main)
 else()
-	add_executable("MagicCube_client" "src/ClientMain.cpp")
 	target_link_libraries("MagicCube_client" MagicCube_client_lib)
 endif()
-
 ##########client end##########
 
-##########client_test start##########
 
-# add lib
+##########client_test start##########
+# find packages
 find_package(GTest REQUIRED)
+find_package(Threads REQUIRED)
 
 # create executable
 aux_source_directory("src/client_test" CLIENT_TEST_DIR_SRCS)
 add_executable(MagicCube_client_test ${CLIENT_TEST_DIR_SRCS})
 
-# pthread
-find_package(Threads REQUIRED)
+# pthread check
 if(THREADS_HAVE_PTHREAD_ARG)
 	set_property(TARGET MagicCube_client_test PROPERTY COMPILE_OPTIONS "-pthread")
 	set_property(TARGET MagicCube_client_test PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+elseif (NOT MSVC)
+	message("Failed to find pthread")
 endif()
 
 # link
@@ -99,7 +87,6 @@ else()
 	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block GTest::GTest GTest::Main ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-# setup test
+# add test
 add_test(ClientTest bin/MagicCube_client_test)
-
 ##########client_test end##########

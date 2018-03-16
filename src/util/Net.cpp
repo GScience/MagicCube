@@ -24,7 +24,6 @@ void NetIoServerBase::createRefreshThread()
 {
 	mIoThreadPool.emplace_back(std::thread([&]()
 	{
-		std::cout << "start a net refresh thread" << std::endl;
 		while (!mIsStopped)
 			mIoServer.run_one();
 	}));
