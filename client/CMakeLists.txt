@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.1)
 
 ##########client_lib start##########
 # find packages
-if (NOT MSVC)
-	set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
-endif()
-
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
