@@ -3,7 +3,7 @@
 #include "BlockList.h"
 #include "GameClient.h"
 
-volatile TEST(ClientTest, ChunkTest)
+TEST(ClientTest, ChunkTest)
 {
 	auto& client = GameClient::getInstance();
 
@@ -38,7 +38,7 @@ volatile TEST(ClientTest, ChunkTest)
 	ASSERT_EQ(sizeof(ClientBlock), 8);
 }
 
-volatile TEST(ClientTest, FindChunkSpeedTest)
+TEST(ClientTest, FindChunkSpeedTest)
 {
 	auto& client = GameClient::getInstance();
 

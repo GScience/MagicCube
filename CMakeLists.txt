@@ -7,12 +7,12 @@ set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 # set cxx version
 set (CMAKE_CXX_STANDARD 14)
 
+#create project
+project(MagicCube)
+
 if (NOT MSVC)
 	set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 endif()
-
-#create project
-project(MagicCube)
 
 include("util/CMakeLists.txt")
 include("block/CMakeLists.txt")
