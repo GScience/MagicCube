@@ -89,8 +89,6 @@ NetPlayer::NetPlayer(std::unique_ptr<asio::ip::tcp::socket>&& ioServer) :
 
 void NetPlayer::asyncReceive()
 {
-	std::cout << "start receive package" << std::endl;
-
 	//read package size
 	asio::async_read(*mSocket, asio::buffer(mTmpPkSizeBuffer), [&]
 	(const asio::error_code& er, size_t readSize)
@@ -102,12 +100,8 @@ void NetPlayer::asyncReceive()
 		auto packageSize = *reinterpret_cast<PkSize*>(&mTmpPkSizeBuffer[0]);
 		mTmpPkBuffer.resize(packageSize);
 
-		std::cout << "receive a package with size " << packageSize << std::endl;
-
 		//read package
 		auto readPackageSize = asio::read(*mSocket, asio::buffer(mTmpPkBuffer));
-
-		std::cout << "real size " << readPackageSize << std::endl;
 
 		if (readPackageSize != mTmpPkBuffer.size() * sizeof(char))
 			return;
