@@ -34,6 +34,25 @@ protected:
 	}
 };
 
+class NetPlayer;
+
+/*!a simple net server*/
+class NetServer : NetIoServerBase
+{
+	friend class NetPlayer;
+
+	//!server acceptor
+	asio::ip::tcp::acceptor mAcceptor;
+
+	//!save all net player
+	std::vector<std::unique_ptr<NetPlayer>> mNetPlayers;
+	std::function<void(NetPlayer&, NetPackageBase&&)> mReceiveCallback;
+
+public:
+	NetServer(const std::string& address, unsigned short port, decltype(mReceiveCallback) receiveCallback);
+	void asyncAccept();
+};
+
 /*!a simple net player class*/
 class NetPlayer
 {
@@ -54,25 +73,14 @@ class NetPlayer
 	//!login stage
 	LoginStage mLoginStage = LoginShakehand;
 
-public:
-	explicit NetPlayer(std::unique_ptr<asio::ip::tcp::socket>&& ioServer);
+	//!server
+	NetServer& mServer;
 
-	//!receive net package
+public:
+	NetPlayer(NetServer& server, std::unique_ptr<asio::ip::tcp::socket>&& ioServer);
+
+	void sendPackage(const NetPackageBase& package) const;
 	void asyncReceive();
-};
-
-/*!a simple net server*/
-class NetServer : NetIoServerBase
-{
-	//!server acceptor
-	asio::ip::tcp::acceptor mAcceptor;
-
-	//!save all net player
-	std::vector<std::unique_ptr<NetPlayer>> mNetPlayers;
-	
-public:
-	NetServer(const std::string& address, unsigned short port);
-	void asyncAccept();
 };
 
 /*!a simple client*/
@@ -80,8 +88,28 @@ class NetClient : NetIoServerBase
 {
 	//!client socket
 	std::unique_ptr<asio::ip::tcp::socket> mClientSocket = nullptr;
+	std::vector<NetPackageBase> mReceivedPackage;
+
+	//!package size buffer
+	std::vector<char> mTmpPkSizeBuffer;
+	std::vector<char> mTmpPkBuffer;
 
 public:
+	size_t getReceivedPackageCount() const
+	{
+		return mReceivedPackage.size();
+	}
+
+	NetPackageBase&& popPackage()
+	{
+		auto&& package = std::move(mReceivedPackage.front());
+		mReceivedPackage.erase(mReceivedPackage.begin());
+
+		return std::move(package);
+	}
+
 	NetClient(const std::string& address, unsigned short port);
+
 	void sendPackage(const NetPackageBase& package) const;
+	void asyncReceive();
 };

@@ -11,5 +11,5 @@ public:
 };
 
 #ifndef FOR_REGISTER
-#define BlockAir BlockList.getBlock<BlockGrass>()
+#define BlockGrass BlockList.getBlock<BlockGrass>()
 #endif

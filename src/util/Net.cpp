@@ -1,6 +1,8 @@
 #include "Net.h"
 #include "NetPackage/NetPackageShakehand.h"
 #include <iostream>
+#include "NetPackage/NetPackageClientCommand.h"
+#include "NetPackage/NetPackageServerCommand.h"
 
 NetIoServerBase::NetIoServerBase()
 {
@@ -50,9 +52,41 @@ void NetClient::sendPackage(const NetPackageBase& package) const
 	mClientSocket->send(asio::buffer(package.toBinaryString()));
 }
 
-NetServer::NetServer(const std::string& address, const unsigned short port) :
+void NetClient::asyncReceive()
+{
+	//read package size
+	asio::async_read(*mClientSocket, asio::buffer(mTmpPkSizeBuffer), [&]
+	(const asio::error_code& er, size_t readSize)
+	{
+		if (er || readSize != mTmpPkSizeBuffer.size() * sizeof(char))
+			return;
+
+		//get package size
+		auto packageSize = *reinterpret_cast<PkSize*>(&mTmpPkSizeBuffer[0]);
+		mTmpPkBuffer.resize(packageSize);
+
+		//read package
+		auto readPackageSize = asio::read(*mClientSocket, asio::buffer(mTmpPkBuffer));
+
+		if (readPackageSize != mTmpPkBuffer.size() * sizeof(char))
+			return;
+
+		std::stringstream packageStream(
+			std::string(mTmpPkBuffer.begin(), mTmpPkBuffer.end())
+		);
+
+		NetPackageServerCommand serverCommandPackage;
+		serverCommandPackage.fromStringStream(packageStream);
+
+		mReceivedPackage.emplace_back(serverCommandPackage);
+	});
+}
+
+
+NetServer::NetServer(const std::string& address, const unsigned short port, decltype(mReceiveCallback) receiveCallback) :
 	NetIoServerBase(),
-	mAcceptor(asio::ip::tcp::acceptor(getIoServer(), asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port)))
+	mAcceptor(asio::ip::tcp::acceptor(getIoServer(), asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port))),
+	mReceiveCallback(receiveCallback)
 {
 	//create refresh thread
 	createRefreshThread();
@@ -61,7 +95,7 @@ NetServer::NetServer(const std::string& address, const unsigned short port) :
 
 void NetServer::asyncAccept()
 {
-	auto newNetPlayer = new NetPlayer(createSocket());
+	auto newNetPlayer = new NetPlayer(*this, createSocket());
 
 	std::function<void(const asio::error_code&)> acceptFunc = std::bind([&](const asio::error_code& er, NetPlayer* netPlayer)
 	{
@@ -81,9 +115,10 @@ void NetServer::asyncAccept()
 }
 
 
-NetPlayer::NetPlayer(std::unique_ptr<asio::ip::tcp::socket>&& ioServer) :
+NetPlayer::NetPlayer(NetServer& server, std::unique_ptr<asio::ip::tcp::socket>&& ioServer) :
 	mSocket(std::move(ioServer)),
-	mTmpPkSizeBuffer(sizeof(PkSize), 0)
+	mTmpPkSizeBuffer(sizeof(PkSize), 0),
+	mServer(server)
 {}
 
 void NetPlayer::asyncReceive()
@@ -108,7 +143,7 @@ void NetPlayer::asyncReceive()
 		std::stringstream packageStream(
 			std::string(mTmpPkBuffer.begin(), mTmpPkBuffer.end())
 		);
-
+		
 		//check stage
 		switch (mLoginStage)
 		{
@@ -120,9 +155,17 @@ void NetPlayer::asyncReceive()
 			if (shakehandPackage.version != NET_PACKAGE_VERSION)
 				throw std::runtime_error("Wrong client version");
 			else
-				std::cout << "[Server]accept a connection " << shakehandPackage .playerName << std::endl;
+				std::cout << "[Server]accept a connection " << shakehandPackage.playerName << std::endl;
 
+			mLoginStage = LoginDone;
 			break;
+		}
+		case LoginDone:
+		{
+			NetPackageClientCommand clientCommandPackage;
+			clientCommandPackage.fromStringStream(packageStream);
+
+			mServer.mReceiveCallback(*this, std::move(clientCommandPackage));
 		}
 		default:
 			break;
@@ -131,4 +174,9 @@ void NetPlayer::asyncReceive()
 
 		asyncReceive();
 	});
+}
+
+void NetPlayer::sendPackage(const NetPackageBase& package) const
+{
+	mSocket->send(asio::buffer(package.toBinaryString()));
 }

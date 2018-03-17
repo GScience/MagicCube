@@ -6,13 +6,8 @@
 class NetPackageShakehand : public NetPackageBase
 {
 public:
-	int version = 0;
+	int version = NET_PACKAGE_VERSION;
 	std::string playerName;
-
-	explicit NetPackageShakehand()
-	{
-		version = NET_PACKAGE_VERSION;
-	}
 
 	void fromStringStream(std::stringstream& packageData) override
 	{
