@@ -11,3 +11,7 @@ public:
 	std::vector<float> createRenderData(BlockSurface surface, std::shared_ptr<BlockData> data) override { return {}; }
 	bool checkCollision(double x, double y, double z) override { return false; }
 };
+
+#ifndef FOR_REGISTER
+#define BlockAir BlockList.getBlock<BlockAir>()
+#endif

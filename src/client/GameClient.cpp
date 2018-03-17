@@ -18,10 +18,10 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 		throw std::invalid_argument("don't support to connect to the remote server");
 	
 	//init local chunk group
-	mClientChunkGroup.init();
+	mLocalChunkGroupCache.init();
 
 	//connect to server
-	mNetClient = std::unique_ptr<NetClient>(new NetClient("127.0.0.1", LOCAL_PORT));
+	mNetClient = std::make_unique<NetClient>("127.0.0.1", LOCAL_PORT);
 	auto shakeHandPackage = NetPackageShakehand();
 	shakeHandPackage.playerName = "Test Player";
 	mNetClient->sendPackage(shakeHandPackage);
@@ -33,10 +33,32 @@ void GameClient::refresh(const double timePassed)
 {
 	//load chunk nearby
 	for (auto i = 0; i < 30; i++)
-		for (auto j = 0; j < 30; j++)
-			mClientChunkGroup.loadChunk(30, 30, 30);
+		for (auto j = 0; j < 16; j++)
+			for (auto k = 0; k < 30; k++)
+				loadChunk(i, j, k);
 
 	mLoadChunkTasks.refresh();
+}
+
+void GameClient::loadChunk(const int32_t chunkX, const int32_t chunkY, const int32_t chunkZ)
+{
+	if (!mLocalChunkGroupCache.addChunk(chunkX, chunkY, chunkZ))
+		return;
+
+	mLoadChunkTasks.addTask(Task([&]
+	()
+	{
+		return downloadChunkData(chunkX, chunkY, chunkZ);
+	}), [&]
+	(const Task& task)
+	{
+		auto result = task.get();
+	});
+}
+
+std::shared_ptr<Chunk> GameClient::getChunk(const int32_t chunkX, const int32_t chunkY, const int32_t chunkZ) const
+{
+	return mLocalChunkGroupCache.getChunk(chunkX, chunkY, chunkZ);
 }
 
 std::shared_ptr<NetPackageChunk> GameClient::downloadChunkData(const int32_t chunkX, const int32_t chunkY, const int32_t chunkZ)

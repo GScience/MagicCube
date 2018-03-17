@@ -60,4 +60,6 @@ SceneGame::~SceneGame()
 	//delete buffer object and vertex array object
 	glDeleteVertexArrays(1, &mVao);
 	glDeleteBuffers(1, &mVbo);
+
+	GameClient::getInstance().close();
 }

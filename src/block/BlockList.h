@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 #include <memory>
 #include <iostream>
 #include "IBlock.h"
@@ -10,6 +11,7 @@ class BlockList
 {
 	//!save all block
 	std::vector<std::unique_ptr<IBlock>> mBlockList;
+	std::unordered_map<size_t, size_t> mBlockMap;
 
 	BlockList() = default;
 
@@ -20,22 +22,28 @@ public:
 		std::unique_ptr<IBlock> blockPtr(new t());
 		const auto blockId = blockPtr->getId();
 
-		if (blockPtr->getId() >= mBlockList.size())
-			mBlockList.resize(blockPtr->getId() + 1);
+		if (blockId >= mBlockList.size())
+			mBlockList.resize(blockId + 1);
 
-		mBlockList[blockPtr->getId()] = std::move(blockPtr);
+		mBlockList[blockId] = std::move(blockPtr);
+		mBlockMap[typeid(t).hash_code()] = blockId;
 
-		std::cout << "[BlockList] Register a new block id = " << blockId << " with name " << typeid(t).name() << std::endl;
+		std::cout << "[BlockList] Register a new block id = " << blockId << " with hash " << typeid(t).hash_code() << std::endl;
 	}
 
 	//!init all block
 	void init();
 
-	/*!get a block
+	/*!get block info by id
 	 * @param blockId Block ID
 	 */
-	IBlock* getBlock(const uint16_t blockId) { return mBlockList[blockId].get(); }
+	IBlock& getBlock(const uint16_t blockId) { return *mBlockList[blockId].get(); }
 
+	//!get block info by type
+	template <class blockType> IBlock& getBlock()
+	{
+		return getBlock(mBlockMap[typeid(blockType).hash_code()]);
+	}
 
 	//!get block list
 	static BlockList& getInstance()

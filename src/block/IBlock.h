@@ -13,10 +13,9 @@ class BlockData
 {
 public:
 	//!block id
-	const uint16_t blockId;
+	virtual uint16_t getBlockId() = 0;
 
-	//create a block data
-	explicit BlockData(const uint16_t blockId) : blockId(blockId) { }
+	virtual ~BlockData() = default;
 };
 
 class IBlock
@@ -46,4 +45,9 @@ public:
 	* @param z Location z in block
 	*/
 	virtual bool checkCollision(double x, double y, double z) = 0;
+
+	operator uint16_t()
+	{
+		return getId();
+	}
 };

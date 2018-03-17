@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ClientChunk.h"
+#include "Chunk.h"
 #include <functional>
 #include "NetPackage/NetPackageChunk.h"
 #include "TaskList.h"
@@ -15,7 +15,7 @@ enum ClientType
 class GameClient
 {
 	//!all client chunk
-	ClientChunkGroup mClientChunkGroup;
+	ChunkGroup mLocalChunkGroupCache;
 
 	//!load chunk task
 	TaskList mLoadChunkTasks;
@@ -27,6 +27,12 @@ class GameClient
 	std::unique_ptr<NetClient> mNetClient = nullptr;
 
 public:
+	//!load chunk
+	void loadChunk(int32_t chunkX, int32_t chunkY, int32_t chunkZ);
+	
+	//!get chunk
+	std::shared_ptr<Chunk> getChunk(int32_t chunkX, int32_t chunkY, int32_t chunkZ) const;
+
 	//!get client instance
 	static GameClient& getInstance()
 	{
@@ -35,16 +41,10 @@ public:
 	}
 
 	//!get chunk list
-	ClientChunkGroup& getClientChunkGroup() { return mClientChunkGroup; }
+	ChunkGroup& getLocalChunkGroupCache() { return mLocalChunkGroupCache; }
 
 	//!start client
 	void connect(ClientType clientType = LocalServer, const char* serverPotr = nullptr);
-
-	//!add task
-	void addLoadChunkTask(Task&& task, const std::function<void(const Task&)>& onFinish)
-	{
-		mLoadChunkTasks.addTask(std::move(task), onFinish);
-	}
 
 	//!refresh
 	void refresh(double timePassed);

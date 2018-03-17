@@ -1,3 +1,4 @@
+#define FOR_REGISTER
 #include "BlockList.h"
 #include "BlockGrass.h"
 #include "BlockAir.h"

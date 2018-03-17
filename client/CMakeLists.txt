@@ -69,16 +69,14 @@ add_executable(MagicCube_client_test ${CLIENT_TEST_DIR_SRCS})
 if(THREADS_HAVE_PTHREAD_ARG)
 	set_property(TARGET MagicCube_client_test PROPERTY COMPILE_OPTIONS "-pthread")
 	set_property(TARGET MagicCube_client_test PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-elseif (NOT MSVC)
-	message("Failed to find pthread")
 endif()
 
 # link
-if (NOT MSVC)
+if (MSVC)
+	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block GTest::GTest GTest::Main ${CMAKE_THREAD_LIBS_INIT})
+else()
 	include_directories(${GTEST_INCLUDE_DIRS})
 	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-else()
-	target_link_libraries(MagicCube_client_test PRIVATE MagicCube_client_lib MagicCube_block GTest::GTest GTest::Main ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # add test

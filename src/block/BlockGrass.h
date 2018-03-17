@@ -9,3 +9,7 @@ public:
 	uint16_t getId() override { return 0; }
 	uint32_t getBlockTextureLoc(BlockSurface surface) override { return 0; }
 };
+
+#ifndef FOR_REGISTER
+#define BlockAir BlockList.getBlock<BlockGrass>()
+#endif
