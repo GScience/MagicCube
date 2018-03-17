@@ -13,17 +13,19 @@ TEST(ClientTest, ChunkTest)
 	GTEST_SUCCESS_("Succeesfully init block list and start local client");
 	GTEST_MESSAGE_("Test ChunkGroup", testing::TestPartResult::kSuccess);
 
-	for (auto i = 0; i < 30; i++)
-		for (auto j = 0; j < 30; j++)
-			for (auto k = 0; k < 16; k++)
-				client.loadChunk(i, j, k);
+	while (client.getLocalServer()->getPlayers().empty());
 
-	for (auto i = 0; i < 30; i++)
-		for (auto j = 0; j < 30; j++)
-			for (auto k = 0; k < 16; k++)
+	for (auto i = 0; i < 4; i++)
+		for (auto j = 0; j < 4; j++)
+			for (auto k = 0; k < 2; k++)
+				client.getLocalServer()->sendChunkToPlayer(*client.getLocalServer()->getPlayers()[0], i, j, k);
+
+	for (auto i = 0; i < 4; i++)
+		for (auto j = 0; j < 4; j++)
+			for (auto k = 0; k < 2; k++)
 				ASSERT_NE(client.getChunk(i, j, k), nullptr);
 
-	auto testChunk = client.getChunk(10, 10, 10);
+	auto testChunk = client.getChunk(2, 3, 1);
 
 	auto& testBlock1 = testChunk->getBlock(12, 12, 12);
 

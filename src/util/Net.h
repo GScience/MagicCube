@@ -2,8 +2,10 @@
 
 #include <atomic>
 #include <asio.hpp>
+#include <mutex>
 #include <thread>
-#include "NetPackageBase.h"
+#include <deque>
+#include "NetPackage.h"
 
 /*!package some basic operation with io_service*/
 class NetIoServerBase
@@ -47,9 +49,11 @@ class NetServer : NetIoServerBase
 	//!save all net player
 	std::vector<std::unique_ptr<NetPlayer>> mNetPlayers;
 	std::function<void(NetPlayer&, NetPackageBase&&)> mReceiveCallback;
+	std::function<void(NetPlayer&)> mConnectedCallback;
 
 public:
-	NetServer(const std::string& address, unsigned short port, decltype(mReceiveCallback) receiveCallback);
+	NetServer(const std::string& address, unsigned short port, const decltype(mReceiveCallback)&& receiveCallback, const decltype(mConnectedCallback)&& connectedCallback);
+
 	void asyncAccept();
 };
 
@@ -79,7 +83,7 @@ class NetPlayer
 public:
 	NetPlayer(NetServer& server, std::unique_ptr<asio::ip::tcp::socket>&& ioServer);
 
-	void sendPackage(const NetPackageBase& package) const;
+	void asyncSendPackage(const NetPackageBase& package) const;
 	void asyncReceive();
 };
 
@@ -88,28 +92,34 @@ class NetClient : NetIoServerBase
 {
 	//!client socket
 	std::unique_ptr<asio::ip::tcp::socket> mClientSocket = nullptr;
-	std::vector<NetPackageBase> mReceivedPackage;
+	std::deque<NetPackageServerCommand> mReceivedPackage;
+	std::mutex mReceivedPackageLock;
 
 	//!package size buffer
 	std::vector<char> mTmpPkSizeBuffer;
 	std::vector<char> mTmpPkBuffer;
 
 public:
-	size_t getReceivedPackageCount() const
+	size_t getReceivedPackageCount()
 	{
+		std::lock_guard<std::mutex> lockGuard(mReceivedPackageLock);
 		return mReceivedPackage.size();
 	}
 
-	NetPackageBase&& popPackage()
+	NetPackageServerCommand&& getFrontPackage()
 	{
-		auto&& package = std::move(mReceivedPackage.front());
-		mReceivedPackage.erase(mReceivedPackage.begin());
+		std::lock_guard<std::mutex> lockGuard(mReceivedPackageLock);
+		return std::move(mReceivedPackage.front());
+	}
 
-		return std::move(package);
+	void popFrontPackage()
+	{
+		std::lock_guard<std::mutex> lockGuard(mReceivedPackageLock);
+		mReceivedPackage.pop_front();
 	}
 
 	NetClient(const std::string& address, unsigned short port);
 
-	void sendPackage(const NetPackageBase& package) const;
+	void asyncSendPackage(const NetPackageBase& package) const;
 	void asyncReceive();
 };

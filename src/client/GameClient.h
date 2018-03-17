@@ -28,7 +28,7 @@ class GameClient
 
 public:
 	//!load chunk
-	void loadChunk(int32_t chunkX, int32_t chunkY, int32_t chunkZ);
+	void loadChunkFromPackage(NetPackageChunk& chunkPackage);
 	
 	//!get chunk
 	std::shared_ptr<Chunk> getChunk(int32_t chunkX, int32_t chunkY, int32_t chunkZ) const;
@@ -40,6 +40,12 @@ public:
 		return gameClient;
 	}
 
+	//!get local server
+	std::shared_ptr<GameServer> getLocalServer() const
+	{
+		return mLocalServer;
+	}
+
 	//!get chunk list
 	ChunkGroup& getLocalChunkGroupCache() { return mLocalChunkGroupCache; }
 
@@ -48,11 +54,6 @@ public:
 
 	//!refresh
 	void refresh(double timePassed);
-	
-	/*!gen chunk data
-	 * should be thread-safety
-	 */
-	std::shared_ptr<NetPackageChunk> downloadChunkData(int32_t chunkX, int32_t chunkY, int32_t chunkZ);
 
 	//!close
 	void close();

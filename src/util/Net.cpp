@@ -1,8 +1,7 @@
 #include "Net.h"
-#include "NetPackage/NetPackageShakehand.h"
+#include "NetPackage.h"
 #include <iostream>
-#include "NetPackage/NetPackageClientCommand.h"
-#include "NetPackage/NetPackageServerCommand.h"
+#include "NetPackage/NetPackageChunk.h"
 
 NetIoServerBase::NetIoServerBase()
 {
@@ -36,7 +35,7 @@ std::unique_ptr<asio::ip::tcp::socket> NetIoServerBase::createSocket()
 	return std::unique_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(mIoServer));
 }
 
-NetClient::NetClient(const std::string& address, const unsigned short port)
+NetClient::NetClient(const std::string& address, const unsigned short port) :mTmpPkSizeBuffer(sizeof(PkSize), 0)
 {
 	//create refresh thread
 	createRefreshThread();
@@ -45,9 +44,12 @@ NetClient::NetClient(const std::string& address, const unsigned short port)
 	mClientSocket = createSocket();
 	//connect
 	mClientSocket->connect(asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port));
+
+	//receive
+	asyncReceive();
 }
 
-void NetClient::sendPackage(const NetPackageBase& package) const
+void NetClient::asyncSendPackage(const NetPackageBase& package) const
 {
 	mClientSocket->send(asio::buffer(package.toBinaryString()));
 }
@@ -78,15 +80,17 @@ void NetClient::asyncReceive()
 		NetPackageServerCommand serverCommandPackage;
 		serverCommandPackage.fromStringStream(packageStream);
 
-		mReceivedPackage.emplace_back(serverCommandPackage);
+		std::lock_guard<std::mutex> lockGuard(mReceivedPackageLock);
+		mReceivedPackage.emplace_back(std::move(serverCommandPackage));
 	});
 }
 
 
-NetServer::NetServer(const std::string& address, const unsigned short port, decltype(mReceiveCallback) receiveCallback) :
+NetServer::NetServer(const std::string& address, const unsigned short port, const decltype(mReceiveCallback)&& receiveCallback, const decltype(mConnectedCallback)&& connectedCallback) :
 	NetIoServerBase(),
 	mAcceptor(asio::ip::tcp::acceptor(getIoServer(), asio::ip::tcp::endpoint(asio::ip::address::from_string(address), port))),
-	mReceiveCallback(receiveCallback)
+	mReceiveCallback(receiveCallback),
+	mConnectedCallback(connectedCallback)
 {
 	//create refresh thread
 	createRefreshThread();
@@ -158,6 +162,8 @@ void NetPlayer::asyncReceive()
 				std::cout << "[Server]accept a connection " << shakehandPackage.playerName << std::endl;
 
 			mLoginStage = LoginDone;
+			mServer.mConnectedCallback(*this);
+
 			break;
 		}
 		case LoginDone:
@@ -176,7 +182,7 @@ void NetPlayer::asyncReceive()
 	});
 }
 
-void NetPlayer::sendPackage(const NetPackageBase& package) const
+void NetPlayer::asyncSendPackage(const NetPackageBase& package) const
 {
 	mSocket->send(asio::buffer(package.toBinaryString()));
 }
