@@ -21,7 +21,7 @@ void GameClient::connect(const ClientType clientType, const char* serverPotr)
 	mLocalChunkGroupCache.init();
 
 	//connect to server
-	mNetClient = std::make_unique<NetClient>("127.0.0.1", LOCAL_PORT);
+	mNetClient = std::unique_ptr<NetClient>(new NetClient("127.0.0.1", LOCAL_PORT));
 	auto shakeHandPackage = NetPackageShakehand();
 	shakeHandPackage.playerName = "Test Player";
 	mNetClient->sendPackage(shakeHandPackage);

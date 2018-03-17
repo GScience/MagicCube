@@ -31,7 +31,7 @@ void NetIoServerBase::createRefreshThread()
 
 std::unique_ptr<asio::ip::tcp::socket> NetIoServerBase::createSocket()
 {
-	return std::make_unique<asio::ip::tcp::socket>(asio::ip::tcp::socket(mIoServer));
+	return std::unique_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(mIoServer));
 }
 
 NetClient::NetClient(const std::string& address, const unsigned short port)
